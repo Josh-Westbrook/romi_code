@@ -5,17 +5,19 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonomousDistance;
 import frc.robot.commands.AutonomousTime;
 import frc.robot.commands.LEDcontrol;
+import frc.robot.commands.TurnDegrees;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.OnBoardIO;
 import frc.robot.subsystems.OnBoardIO.ChannelMode;
@@ -30,8 +32,9 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final OnBoardIO m_onboardIO = new OnBoardIO(ChannelMode.OUTPUT, ChannelMode.INPUT);
+  private final TurnDegrees m_turnDegrees = new TurnDegrees(0, 0, m_drivetrain);
   // Assumes a gamepad plugged into channnel 0
-  private final Joystick m_controller = new Joystick(0);
+  private final XboxController m_controller = new XboxController(0);
 
   // Create SmartDashboard chooser for autonomous routines
   private final SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -64,9 +67,12 @@ public class RobotContainer {
     // is scheduled over it.
     m_drivetrain.setDefaultCommand(getArcadeDriveCommand());
     // Example of how to use the onboard IO
+    new JoystickButton(m_controller, Button.kA.value)
+    .onTrue(new TurnDegrees(.5, 90.0, m_drivetrain));
+    //.whenPressed(new InstantCommand(() -> {new TurnDegrees(0.5, 90.0, m_drivetrain);}));
     /*Trigger onboardButtonA = new Trigger(m_onboardIO::getButtonAPressed);
     onboardButtonA
-        .onTrue(new InstantCommand(() -> {m_onboardIO.setGreenLed(true);}))
+        .onTrue(new InstantCommand(() -> {m_onboardIO.setGreenLed(true);})) 
         .onFalse(new InstantCommand(() -> {m_onboardIO.setGreenLed(false);}));
   */
     Trigger speedX = new Trigger(() -> m_drivetrain.getboolAccelX());
